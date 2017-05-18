@@ -8,6 +8,6 @@ layout: post
 
 ## Sub heading
 
-![Pretty cool image](https://static1.squarespace.com/static/556e4851e4b0fb59709eecbd/t/573c8add1bbee0b32db807c8/1463585508690/?format=1500w)
+![Pretty cool image](images/mountains.jpg)
 
 paragraph text
