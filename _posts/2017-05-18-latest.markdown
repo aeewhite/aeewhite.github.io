@@ -8,6 +8,6 @@ layout: post
 
 ## Sub heading
 
-![Pretty cool image](/images/mountains.jpg)
+![Pretty cool image]({{ site.url }}/images/mountains.jpg)
 
 paragraph text
