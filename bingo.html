@@ -21,6 +21,7 @@
 
         body {
             text-align: center;
+            font-family: 'Lato', sans-serif;
         }
 
         .card {
@@ -45,17 +46,16 @@
         td.daubed {
             background-image: linear-gradient(45deg,
                     rgba(0, 0, 0, 0) 45%,
-                    red 45% 55%,
+                    rgb(200, 0, 0) 45% 55%,
                     rgba(0, 0, 0, 0) 55%),
                 linear-gradient(315deg,
                     rgba(0, 0, 0, 0) 45%,
-                    red 45% 55%,
+                    rgb(200, 0, 0) 45% 55%,
                     rgba(0, 0, 0, 0) 55%);
 
         }
 
         td {
-            font-family: 'Lato', sans-serif;
             border: 1px solid black;
         }
 
@@ -66,6 +66,10 @@
 
         .free {
             font-size: 24px;
+        }
+
+        div{
+            margin: 1em;
         }
 
         @media print {
@@ -89,11 +93,19 @@
             .free {
                 font-size: .175in;
             }
+
+            a {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div>
+        <a id="callerLink" href="bingo-caller.html">Click here for a Bingo call generator</a>
+    </div>
+
     <script>
         function createTextTd(content) {
             const node = document.createElement("td");
@@ -167,10 +179,15 @@
             }
 
             // Add card to page
-            document.querySelector("body").appendChild(card);
+            document.querySelector("body").prepend(card);
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {
+            let phrase = getQueryVariable("phrase", "BINGO").toUpperCase();
+            if (phrase !== "BINGO") {
+                document.querySelector("#callerLink").href = "bingo-caller.html?phrase=" + phrase;
+            }
+
             renderBingoCard();
             renderBingoCard();
             renderBingoCard();

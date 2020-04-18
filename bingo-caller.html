@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Caller!</title>
+    <link
+        href="https://fonts.googleapis.com/css?family=Bowlby+One|Lato&display=swap"
+        rel="stylesheet">
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        body{
+            font-family: 'Lato', sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .wrapper>div {
+            flex: 1;
+        }
+
+        .noMoNumbos {
+            display: none;
+            background-color: rgba(255, 0, 0, .5);
+            border: 1px solid rgb(200, 0, 0);
+            color: white;
+            padding: .5em;
+            margin: .5em;
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-family: 'Bowlby One', sans-serif;
+            text-transform: uppercase;
+            font-size: 3em;
+        }
+
+        .mostRecent,
+        li,
+        .noMoNumbos {
+            font-weight: bold;
+        }
+
+        .mostRecent {
+            font-size: 2em;
+            margin: .5em;
+        }
+
+        button {
+            font-size: 1.5em;
+            border-radius: 8px;
+        }
+
+        /* Style for all numbers table */
+        table {
+            text-align: center;
+            font-family: 'Lato', sans-serif;
+        }
+
+        thead {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        tbody td {
+            width: 2em;
+            height: 2em;
+        }
+
+        td.daubed {
+            background-color: rgb(200, 0, 0);
+            border-radius: 50%;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bingo Caller</h1>
+    <div class="wrapper">
+        <div>
+            <button id="nextCallButton">Next Call</button>
+            <div class="noMoNumbos">No more numbers to call!</div>
+            <div class="mostRecent"></div>
+
+            <div>
+                <ul class="allCallsList">
+                </ul>
+            </div>
+        </div>
+        <div>
+            <table>
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <br>
+            <a id="cardLink" href="bingo.html">Click here for Bingo cards</a>
+        </div>
+    </div>
+
+    <script>
+        function getQueryVariable(variable, fallback) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+            console.log('Query variable %s not found, returning default %s', variable, fallback);
+            return fallback;
+        }
+
+        let usedNumbers = [];
+        function getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            let candiate = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (usedNumbers.indexOf(candiate) < 0) {
+                usedNumbers.push(candiate);
+                return candiate;
+            }
+            else {
+                return getRandomIntInclusive(min, max);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Load up bingo "phrase"
+            let phrase = getQueryVariable("phrase", "BINGO").toUpperCase();
+            if (phrase.length !== 5) {
+                phrase = "BINGO";
+            }
+
+            if (phrase !== "BINGO") {
+                document.querySelector("h1").append(document.createTextNode(" - \"" + phrase + "\""));
+                document.querySelector("#cardLink").href = "bingo.html?phrase=" + phrase;
+            }
+
+            // Generate all numbers table
+            let thead = document.querySelector("thead");
+            let headerRow = document.createElement("tr");
+            for (let i = 0; i < 5; i++) {
+                let slot = document.createElement("td");
+                slot.append(document.createTextNode(phrase[i]));
+                headerRow.append(slot);
+            }
+            thead.append(headerRow);
+            let tbody = document.querySelector("tbody");
+            for (let i = 1; i <= 15; i++) {
+                let row = document.createElement("tr");
+                for (let j = 0; j < 5; j++) {
+                    let td = document.createElement("td");
+                    let num = i + (j * 15);
+                    td.id = "card" + num;
+                    td.append(document.createTextNode(num));
+                    row.append(td);
+                }
+                tbody.append(row);
+            }
+
+            let stillPlaying = true;
+
+            document.querySelector("#nextCallButton").addEventListener("click", (event) => {
+                if (!stillPlaying) {
+                    return;
+                }
+
+                // Grab most recent call
+                const oldRecent = document.querySelector(".mostRecent").textContent;
+                // Push old call to all calls list
+                if (oldRecent !== null && oldRecent !== "") {
+                    const toPush = document.createElement("li");
+                    toPush.appendChild(document.createTextNode(oldRecent));
+                    document.querySelector(".allCallsList").prepend(toPush);
+                }
+
+                // Generate new call
+                const newNumber = getRandomIntInclusive(1, 75);
+                // Get letter for new number
+                let letter;
+                if (newNumber >= 1 && newNumber <= 15) { letter = phrase[0]; }
+                else if (newNumber >= 16 && newNumber <= 30) { letter = phrase[1]; }
+                else if (newNumber >= 31 && newNumber <= 45) { letter = phrase[2]; }
+                else if (newNumber >= 46 && newNumber <= 60) { letter = phrase[3]; }
+                else if (newNumber >= 61 && newNumber <= 75) { letter = phrase[4]; }
+
+                // Place in most recent call slot
+                let mostRecentContainer = document.querySelector(".mostRecent");
+                mostRecentContainer.innerHTML = "";
+                mostRecentContainer.append(document.createTextNode(letter + " " + newNumber));
+
+                // Marked the number as called
+                document.querySelector("#card" + newNumber).classList.add("daubed");
+
+                // Check if all done
+                if (usedNumbers.length === 75) {
+                    stillPlaying = false;
+                    document.querySelector("#nextCallButton").disabled = true;
+                    document.querySelector(".noMoNumbos").style.display = "block";
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>
